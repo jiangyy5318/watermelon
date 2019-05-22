@@ -1,7 +1,4 @@
 # coding=utf-8
-
-import glob
-
 import tensorflow as tf
 import numpy as np
 import pandas as pd
@@ -28,8 +25,13 @@ def load_spec_wav(file):
 
 
 def load_sampleindex(paths=None, labels=None, batchsize=16, is_training=False):
+    if not is_training:
+        labels = [1 for _ in paths]
     assert len(paths) == len(labels), "The lengths between paths and labels not equal."
-    index_list = shuffle(range(len(paths)))
+
+    index_list = shuffle(range(len(paths))) if is_training else range(len(paths))
+    index_list = index_list[:batchsize]
+
     ret_x_list, ret_y_list = [], []
     for _idx in index_list:
         tmp_value, tmp_label = load_spec_wav(paths[_idx]), labels[_idx]
@@ -39,31 +41,26 @@ def load_sampleindex(paths=None, labels=None, batchsize=16, is_training=False):
     return np.array(ret_x_list), np.array(ret_y_list).reshape((-1, 1))
 
 
-RATE = 48000
-CHANNELS = 1
-LENGTH = 2
-SAMPLES = RATE*LENGTH
-BATCH_SIZE = 1
+BATCH_SIZE = 16
 FREQ_BAND = 30
-N_CLASSES = 2
 BETA = 0.001
-TRAINING_EPOCHS = 10000
+TRAINING_EPOCHS = 20
 DISPALY_STEP = 100
 HIDDEN_N = 5
 
 
-path = "/Users/jiangyy/Desktop/watermelondataset"
-data_txt_path = os.path.join(path, "train.txt")
+data_dir = "./data"
+data_txt_path = os.path.join(data_dir, "train.txt")
 data_txt_df = pd.read_csv(data_txt_path, delimiter=',', header=None)
 data_txt_df.columns = ["path", "score"]
-data_txt_df['path'] = data_txt_df['path'].apply(lambda x: os.path.join(path, x[2:]))
+data_txt_df['path'] = data_txt_df['path'].apply(lambda x: os.path.join(data_dir, x[2:]))
 train_txt_df, test_txt_df = train_test_split(data_txt_df,  test_size=0.2, random_state=12341, stratify=data_txt_df['score'])
 train_paths, train_labels = train_txt_df['path'].values, train_txt_df['score'].values
 test_paths, test_labels = test_txt_df['path'].values, test_txt_df['score'].values
 
 
 # tf Graph Input
-x = tf.placeholder(tf.float32, [None, FREQ_BAND])
+x = tf.placeholder(tf.float32, [None, FREQ_BAND], name="input")
 y = tf.placeholder(tf.float32, [None, 1])
 
 # Set model weights
@@ -79,7 +76,7 @@ cross_part = tf.multiply(0.5,
                                        axis=1, keep_dims=True)
                          )
 
-pred = tf.sigmoid(tf.clip_by_value(linear_part + cross_part, -4.0, 4.0))
+pred = tf.sigmoid(tf.clip_by_value(linear_part + cross_part, -4.0, 4.0), name="predict")
 
 regularization = tf.nn.l2_loss(bias) + tf.nn.l2_loss(weight) + tf.nn.l2_loss(weight_mix)
 # Minimize error using cross entropy
@@ -106,13 +103,14 @@ with tf.Session() as sess:
         if epoch % DISPALY_STEP == 0:
             # Calculate batch loss and accuracy
             val_x, val_y = load_sampleindex(paths=test_paths, labels=test_labels,
-                                            batchsize=len(test_paths), is_training=True)
+                                            batchsize=len(test_paths), is_training=False)
 
             loss, temp_ll = sess.run([cost, ll], feed_dict={x: val_x, y: val_y})
-            #print(e)
             print("Step " + str(epoch) + ", Minibatch Loss= {:.4f}".format(c) +
                   ", val loss = {:.3f}".format(temp_ll))
 
+    saver = tf.train.Saver()
+    saver.save(sess, "./checkpoint_dir/MyModel")
     print("Optimization Finished!")
 
 
