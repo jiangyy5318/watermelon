@@ -44,7 +44,7 @@ def load_sampleindex(paths=None, labels=None, batchsize=16, is_training=False):
 BATCH_SIZE = 16
 FREQ_BAND = 30
 BETA = 0.001
-TRAINING_EPOCHS = 20
+TRAINING_EPOCHS = 10000
 DISPALY_STEP = 100
 HIDDEN_N = 5
 
