@@ -4,6 +4,7 @@
 - 如data中, 每个文件夹代表一个西瓜, 则样本集中有三个西瓜, 分别是fold15, fold16, fold17;
 - 每个文件夹中存有若干个wav文件, 文件是拍击西瓜的录音, 要求为.wav格式, 通道数为1, 如果不符合要求使用ffpmeg转化;
 - score.txt按照csv个数存储了每个西瓜的成熟度;
+  - 因为之前的标签数据丢失, 这里的标注是随机数;
 - train.txt记录每个录音以及对应西瓜的成熟度, 由脚本generate_dataset.sh生成, 执行如下
 
 ```
@@ -11,7 +12,7 @@ cd $(projects)
 cd data
 sh generate_dataset.sh > train.txt
 ```
-- 可以直接使用样例数据, download watermelondataset.zip, PS:样例数据标签是随机的。
+- 可以直接使用样本集, download watermelondataset.zip, PS:样本数据标签是随机的。
 ```
 download watermelondataset.zip
 unzip watermelondataset.zip
