@@ -11,7 +11,7 @@ cd $(projects)
 cd data
 sh generate_dataset.sh > train.txt
 ```
-- 可以直接使用样例数据, download watermelondataset.zip
+- 可以直接使用样例数据, download watermelondataset.zip, PS:样例数据标签是随机的。
 ```
 download watermelondataset.zip
 unzip watermelondataset.zip
@@ -29,7 +29,7 @@ PS:会有若干需要安装的库, 看到error就开始装吧!
 ### 线上代码
 - 鉴于之前申请域名导致项目周期无限期延长并且间接导致代码丢失, 这里只提供线上预测的调用, 不提供后台;
 - 注意送入预测代码的wav文件需要进行检测, 如果不是wav或者不是单通道, 请自行处理, 预测代码只接受正确的文件;
-- 这里只提供python3实现的后台, 如果需要其他语言, 请自行翻译
+- 这里只提供python3实现的线上代码,后台建议使用Django后台, 如果需要其他语言, 请自行翻译.
 
 ```
 python3 src/predict.py
