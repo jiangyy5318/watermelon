@@ -11,6 +11,13 @@ cd $(projects)
 cd data
 sh generate_dataset.sh > train.txt
 ```
+- 可以直接使用样例数据, download watermelondataset.zip
+```
+download watermelondataset.zip
+unzip watermelondataset.zip
+cd $(projects)
+ln -s /path/to/watermelondataset data
+```
 
 ### 如何训练
 当准备好数据之后, 就可以直接进行训练了, 训练的代码在src/tf_ffm_sound.py中实现, 主要使用因子分解机和快速傅里叶变换实现, 具体执行:
